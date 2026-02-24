@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card" style="padding:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start">
+      <div class="img" style="aspect-ratio:1/1.1">
+        <img src="{{ p.image or url_for('static', filename='img/hero_shoes.png') }}" alt="{{ p.name }}">
+      </div>
+      <div>
+        <h2 style="margin:0 0 6px">{{ p.name }}</h2>
+        <div class="muted">{{ p.category }} • مخزون: {{ p.stock }}</div>
+        <div style="margin:10px 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+          <div class="price" style="font-size:26px">{{ p.price }} دج</div>
+          {% if p.old_price %}
+            <div class="muted" style="text-decoration:line-through">{{ p.old_price }} دج</div>
+          {% endif %}
+          <span class="pill">الدفع عند الاستلام</span>
+        </div>
+
+        <div class="muted" style="line-height:1.7">{{ p.description or "" }}</div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <form action="{{ url_for('cart_add', pid=p.id) }}" method="post" style="flex:1;min-width:200px">
+            <button class="btn accent" style="width:100%" type="submit">أضف للسلة</button>
+          </form>
+          <a class="btn outline" style="flex:1;min-width:200px" href="{{ url_for('checkout') }}">اطلب الآن</a>
+        </div>
+
+        <div class="card" style="margin-top:14px;background:#faf7f1">
+          <div style="font-weight:900;margin-bottom:6px">ملاحظة</div>
+          <div class="muted">يمكنك إتمام الطلب مباشرة في صفحة الدفع. اختر الولاية، وأضف عنوانك وسيتم حساب التوصيل تلقائياً.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>@media(max-width:980px){ .card > div{grid-template-columns:1fr!important} }</style>
+{% endblock %}

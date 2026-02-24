@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دخول لوحة التحكم</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container" style="max-width:520px">
+    <div class="card" style="margin-top:40px;padding:18px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="{{ url_for('static', filename='img/logo_round.png') }}" style="width:54px;height:54px;border-radius:18px" alt="">
+        <div>
+          <div style="font-weight:900;font-size:18px">Sadsod Shoes</div>
+          <div class="muted">تسجيل الدخول للوحة التحكم</div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-top:12px;display:grid;gap:8px">
+            {% for cat,msg in messages %}
+              <div class="card" style="padding:12px">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="post" action="{{ url_for('admin_login_post') }}" style="margin-top:14px">
+        <div class="field">
+          <label>المستخدم</label>
+          <input name="username" required value="admin">
+        </div>
+        <div class="field">
+          <label>كلمة السر</label>
+          <input name="password" type="password" required value="admin123">
+        </div>
+        <button class="btn accent" style="width:100%" type="submit">دخول</button>
+        <div class="muted" style="margin-top:10px">بعد الدخول غيّر كلمة السر من الكود أو بالبيئة.</div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

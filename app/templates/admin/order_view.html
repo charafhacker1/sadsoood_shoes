@@ -1,0 +1,56 @@
+{% extends "admin/layout.html" %}
+{% set active='orders' %}
+{% block content %}
+  <div class="section-title">
+    <h2>طلب: {{ order.order_no }}</h2>
+    <a class="btn outline small" href="{{ url_for('admin_orders') }}">رجوع</a>
+  </div>
+
+  <div class="card" style="padding:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div class="muted">الزبون</div>
+        <div style="font-weight:900">{{ order.customer_name }}</div>
+        <div class="muted">الهاتف</div>
+        <div style="font-weight:900">{{ order.phone }}</div>
+      </div>
+      <div>
+        <div class="muted">الوجهة</div>
+        <div style="font-weight:900">{{ order.wilaya }}{% if order.daira %} - {{ order.daira }}{% endif %}</div>
+        <div class="muted">العنوان</div>
+        <div style="font-weight:900">{{ order.address }}</div>
+      </div>
+    </div>
+    {% if order.notes %}
+      <div class="card" style="margin-top:10px;background:#faf7f1">
+        <div style="font-weight:900">ملاحظات</div>
+        <div class="muted">{{ order.notes }}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="section-title"><h2>تحديث الحالة</h2></div>
+  <div class="form">
+    <form method="post" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <select name="status" style="min-width:240px">
+        {% for s,label in statuses %}
+          <option value="{{ s }}" {% if order.status==s %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn accent small" type="submit">حفظ</button>
+    </form>
+  </div>
+
+  <div class="section-title"><h2>المنتجات</h2></div>
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th></tr></thead>
+      <tbody>
+        {% for it in items %}
+          <tr><td>{{ it.product_name }}</td><td>{{ it.qty }}</td><td>{{ it.price }} دج</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="price">المجموع: {{ order.total }} دج (توصيل {{ order.delivery_price }} دج)</div>
+  </div>
+{% endblock %}

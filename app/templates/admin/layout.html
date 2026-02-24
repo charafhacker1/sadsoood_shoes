@@ -1,0 +1,49 @@
+{% set active = active or '' %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "لوحة التحكم" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="{{ url_for('static', filename='img/logo_round.png') }}" alt="">
+        <div>
+          <div style="font-weight:900">لوحة التحكم</div>
+          <div style="font-size:12px;opacity:.75">Sadsod Shoes</div>
+        </div>
+      </div>
+      <nav class="admin-menu">
+        <a class="{{ 'active' if active=='dash' else '' }}" href="{{ url_for('admin_dashboard') }}">📊 الإحصائيات</a>
+        <a class="{{ 'active' if active=='products' else '' }}" href="{{ url_for('admin_products') }}">👟 المنتجات</a>
+        <a class="{{ 'active' if active=='orders' else '' }}" href="{{ url_for('admin_orders') }}">📦 الطلبات</a>
+        <a class="{{ 'active' if active=='shipping' else '' }}" href="{{ url_for('admin_shipping') }}">🚚 الشحن</a>
+        <a class="{{ 'active' if active=='dairas' else '' }}" href="{{ url_for('admin_dairas') }}">🗺️ الدوائر</a>
+        <a href="{{ url_for('admin_logout') }}">🚪 خروج</a>
+      </nav>
+      <div style="margin-top:16px;font-size:12px;opacity:.7;line-height:1.6">
+        ✅ الدفع عند الاستلام<br>
+        ✅ الجزائر فقط<br>
+        ⚙️ عدّل أسعار التوصيل والدوائر من هنا
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="display:grid;gap:10px">
+            {% for cat,msg in messages %}
+              <div class="card"><div style="font-weight:800">{{ msg }}</div></div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

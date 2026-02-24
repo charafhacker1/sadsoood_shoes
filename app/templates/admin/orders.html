@@ -1,0 +1,50 @@
+{% extends "admin/layout.html" %}
+{% set active='orders' %}
+{% block content %}
+  <div class="section-title">
+    <h2>الطلبات</h2>
+  </div>
+
+  <div class="card" style="padding:14px">
+    <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <select name="status" style="min-width:220px">
+        <option value="">كل الحالات</option>
+        {% for s,label in statuses %}
+          <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="wilaya" style="min-width:220px">
+        <option value="">كل الولايات</option>
+        {% for w in wilayas %}
+          <option value="{{ w }}" {% if wilaya==w %}selected{% endif %}>{{ w }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn small" type="submit">تصفية</button>
+      <a class="btn small outline" href="{{ url_for('admin_orders') }}">مسح</a>
+    </form>
+  </div>
+
+  <div class="form" style="margin-top:12px">
+    <table class="table">
+      <thead><tr><th>رقم</th><th>الزبون</th><th>الهاتف</th><th>الولاية</th><th>المجموع</th><th>الحالة</th><th>تاريخ</th><th></th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+          <tr>
+            <td>{{ o.order_no }}</td>
+            <td>{{ o.customer_name }}</td>
+            <td>{{ o.phone }}</td>
+            <td>{{ o.wilaya }}</td>
+            <td>{{ o.total }} دج</td>
+            <td>
+              {% for s,label in statuses %}
+                {% if s==o.status %}{{ label }}{% endif %}
+              {% endfor %}
+            </td>
+            <td class="muted">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td><a class="btn small" href="{{ url_for('admin_order_view', oid=o.id) }}">فتح</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

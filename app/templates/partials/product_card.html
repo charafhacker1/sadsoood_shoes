@@ -1,0 +1,23 @@
+<div class="card">
+  <a href="{{ url_for('product', slug=p.slug) }}" class="img">
+    <img src="{{ p.image or url_for('static', filename='img/hero_shoes.png') }}" alt="{{ p.name }}">
+  </a>
+  <div class="meta">
+    <div>
+      <div class="name">{{ p.name }}</div>
+      <div class="muted">{{ p.category }} • مخزون: {{ p.stock }}</div>
+    </div>
+    <div style="text-align:left">
+      <div class="price">{{ p.price }} دج</div>
+      {% if p.old_price %}
+        <div class="muted" style="text-decoration:line-through">{{ p.old_price }} دج</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row-actions">
+    <form action="{{ url_for('cart_add', pid=p.id) }}" method="post" style="flex:1">
+      <button class="btn small" style="width:100%" type="submit">أضف للسلة</button>
+    </form>
+    <a class="btn small outline" style="flex:1" href="{{ url_for('product', slug=p.slug) }}">عرض</a>
+  </div>
+</div>

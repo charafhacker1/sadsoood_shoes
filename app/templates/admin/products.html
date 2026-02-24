@@ -1,0 +1,32 @@
+{% extends "admin/layout.html" %}
+{% set active='products' %}
+{% block content %}
+  <div class="section-title">
+    <h2>المنتجات</h2>
+    <a class="btn accent small" href="{{ url_for('admin_products_new') }}">+ إضافة منتج</a>
+  </div>
+
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>المنتج</th><th>Slug</th><th>فئة</th><th>سعر</th><th>مخزون</th><th>مميز</th><th></th></tr></thead>
+      <tbody>
+        {% for p in products %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td class="muted">{{ p.slug }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.price }} دج</td>
+            <td>{{ p.stock }}</td>
+            <td>{% if p.is_featured %}✅{% else %}—{% endif %}</td>
+            <td style="display:flex;gap:8px;flex-wrap:wrap">
+              <a class="btn small" href="{{ url_for('admin_products_edit', pid=p.id) }}">تعديل</a>
+              <form method="post" action="{{ url_for('admin_products_delete', pid=p.id) }}" onsubmit="return confirm('حذف المنتج؟')">
+                <button class="btn small outline" type="submit">حذف</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

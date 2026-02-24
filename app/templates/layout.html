@@ -1,0 +1,79 @@
+{% set active = active or '' %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "Sadsod Shoes" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="navbar">
+    <div class="row">
+      <a class="brand" href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='img/logo_round.png') }}" alt="Sadsod">
+        <div>
+          <div class="title">Sadsod Shoes</div>
+          <div class="muted" style="font-size:12px">أناقة جلد • لمسة جزائرية</div>
+        </div>
+      </a>
+
+      <form class="searchbar" action="{{ url_for('shop') }}" method="get">
+        <input name="q" placeholder="ابحث عن منتج..." value="{{ request.args.get('q','') }}">
+        <button class="btn small" type="submit">بحث</button>
+      </form>
+
+      <div class="nav-actions">
+        <a class="icon-btn" href="{{ url_for('cart') }}" title="السلة">🛒{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+        <a class="icon-btn" href="{{ url_for('track') }}" title="تتبع">📦</a>
+        <a class="icon-btn" href="{{ url_for('admin_dashboard') }}" title="لوحة التحكم">⚙️</a>
+      </div>
+    </div>
+  </div>
+
+  <a class="float-wa" href="https://wa.me/?text={{ 'السلام عليكم، أريد الطلب من متجر Sadsod Shoes'|urlencode }}" target="_blank" rel="noopener">WA</a>
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="display:grid;gap:10px;margin-top:10px">
+          {% for cat,msg in messages %}
+            <div class="card" style="border-color:{% if cat=='warn' %}#f0d2a8{% else %}#d9f0d9{% endif %};">
+              <div style="font-weight:800">{{ msg }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <div class="footer">
+    <div class="container">
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:900">Sadsod Shoes</div>
+          <div class="muted">الدفع عند الاستلام • توصيل داخل الجزائر</div>
+        </div>
+        
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <a class="chip" href="{{ instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+          <a class="chip" href="{{ whatsapp_url }}" target="_blank" rel="noopener">WhatsApp: {{ whatsapp_number }}</a>
+        </div>
+
+        <div class="muted">© {{ year }} جميع الحقوق محفوظة</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="{{ 'active' if active=='home' else '' }}">الرئيسية</a>
+    <a href="{{ url_for('shop') }}" class="{{ 'active' if active=='shop' else '' }}">المتجر</a>
+    <a href="{{ url_for('cart') }}" class="{{ 'active' if active=='cart' else '' }}">السلة{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+    <a href="{{ url_for('track') }}" class="{{ 'active' if active=='track' else '' }}">تتبع</a>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

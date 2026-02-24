@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card" style="padding:18px">
+    <h2 style="margin:0 0 8px">✅ تم استلام طلبك بنجاح</h2>
+    <div class="muted">رقم الطلب:</div>
+    <div class="price" style="font-size:28px">{{ order.order_no }}</div>
+
+    <div class="card" style="margin-top:12px;background:#faf7f1">
+      <div class="muted">المجموع: <b>{{ order.total }} دج</b> (يشمل التوصيل {{ order.delivery_price }} دج)</div>
+      <div class="muted">الدفع: عند الاستلام</div>
+      <div class="muted">الوجهة: {{ order.wilaya }}{% if order.daira %} - {{ order.daira }}{% endif %}</div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn outline" href="{{ url_for('track') }}">تتبع الطلب</a>
+      <a class="btn accent" target="_blank" rel="noopener"
+         href="https://wa.me/?text={{ ('السلام عليكم، هذا رقم طلبي: ' ~ order.order_no ~ '، الهاتف: ' ~ order.phone)|urlencode }}">تأكيد عبر واتساب</a>
+    </div>
+  </div>
+{% endblock %}

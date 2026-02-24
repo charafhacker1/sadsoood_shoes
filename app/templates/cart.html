@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% set active='cart' %}
+{% block content %}
+  <div class="section-title">
+    <h2>السلة</h2>
+  </div>
+
+  {% if items %}
+    <form method="post" action="{{ url_for('cart_update') }}" class="form">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>المنتج</th><th>السعر</th><th>الكمية</th><th>المجموع</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in items %}
+            <tr>
+              <td>{{ i.product.name }}</td>
+              <td>{{ i.product.price }} دج</td>
+              <td><input name="qty_{{ i.product.id }}" value="{{ i.qty }}" style="width:90px"></td>
+              <td>{{ i.line_total }} دج</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+        <div class="price">المجموع: {{ subtotal }} دج</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn outline" type="submit">تحديث</button>
+          <a class="btn accent" href="{{ url_for('checkout') }}">إتمام الطلب</a>
+        </div>
+      </div>
+    </form>
+  {% else %}
+    <div class="card">السلة فارغة. <a class="btn small" href="{{ url_for('shop') }}">اذهب للمتجر</a></div>
+  {% endif %}
+{% endblock %}

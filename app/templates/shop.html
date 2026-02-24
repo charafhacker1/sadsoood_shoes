@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% set active='shop' %}
+{% block content %}
+  <div class="section-title">
+    <h2>المتجر</h2>
+  </div>
+
+  <div class="card" style="padding:14px">
+    <form method="get" action="{{ url_for('shop') }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input style="flex:1;min-width:220px" name="q" placeholder="بحث..." value="{{ q }}">
+      <select name="cat" style="min-width:200px">
+        <option value="">كل الفئات</option>
+        {% for c in cats %}
+          <option value="{{ c }}" {% if cat==c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn" type="submit">تطبيق</button>
+      <a class="btn outline" href="{{ url_for('shop') }}">مسح</a>
+    </form>
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    {% for p in products %}
+      {% include "partials/product_card.html" %}
+    {% else %}
+      <div class="card">لا توجد نتائج.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

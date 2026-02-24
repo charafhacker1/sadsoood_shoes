@@ -1,0 +1,53 @@
+{% extends "admin/layout.html" %}
+{% set active='shipping' %}
+{% block content %}
+  <div class="section-title">
+    <h2>الشحن (أسعار التوصيل)</h2>
+  </div>
+
+  <div class="form">
+    <form method="post" action="{{ url_for('admin_shipping_add') }}" style="display:grid;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field">
+          <label>الولاية</label>
+          <select name="wilaya" required>
+            <option value="">اختر الولاية</option>
+            {% for w in wilayas %}<option value="{{ w }}">{{ w }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>الدائرة (اختياري: اتركها فارغة لتطبيق السعر على كل الولاية)</label>
+          <input name="daira" placeholder="مثال: الدائرة...">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>السعر (دج)</label><input name="price" value="600"></div>
+        <div class="field"><label>المدة (اختياري)</label><input name="eta" value="24-72 ساعة"></div>
+      </div>
+      <button class="btn accent" type="submit">إضافة</button>
+      <div class="muted">نصيحة: عيّن سعر عام لكل ولاية، ثم إن أردت عدّل أسعار دوائر معيّنة.</div>
+    </form>
+  </div>
+
+  <div class="section-title"><h2>القائمة</h2></div>
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>الولاية</th><th>الدائرة</th><th>السعر</th><th>المدة</th><th></th></tr></thead>
+      <tbody>
+        {% for r in rates %}
+          <tr>
+            <td>{{ r.wilaya }}</td>
+            <td>{{ r.daira or '— (سعر عام للولاية)' }}</td>
+            <td>{{ r.price }} دج</td>
+            <td class="muted">{{ r.eta or '—' }}</td>
+            <td>
+              <form method="post" action="{{ url_for('admin_shipping_delete', rid=r.id) }}" onsubmit="return confirm('حذف؟')">
+                <button class="btn small outline" type="submit">حذف</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

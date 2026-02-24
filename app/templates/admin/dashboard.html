@@ -1,0 +1,39 @@
+{% extends "admin/layout.html" %}
+{% set active='dash' %}
+{% block content %}
+  <div class="section-title">
+    <h2>الإحصائيات</h2>
+    <a class="btn outline small" href="{{ url_for('home') }}">فتح المتجر</a>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="muted">طلبات اليوم</div><div class="n">{{ orders_today }}</div></div>
+    <div class="kpi"><div class="muted">مداخيل اليوم</div><div class="n">{{ revenue_today }} دج</div></div>
+    <div class="kpi"><div class="muted">كل الطلبات</div><div class="n">{{ total_orders }}</div></div>
+    <div class="kpi"><div class="muted">المنتجات</div><div class="n">{{ total_products }}</div></div>
+  </div>
+
+  <div class="section-title"><h2>آخر الطلبات</h2></div>
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>الرقم</th><th>الزبون</th><th>الهاتف</th><th>الولاية</th><th>المجموع</th><th>الحالة</th><th></th></tr></thead>
+      <tbody>
+        {% for o in recent %}
+          <tr>
+            <td>{{ o.order_no }}</td>
+            <td>{{ o.customer_name }}</td>
+            <td>{{ o.phone }}</td>
+            <td>{{ o.wilaya }}</td>
+            <td>{{ o.total }} دج</td>
+            <td>
+              {% for s,label in statuses %}
+                {% if s==o.status %}{{ label }}{% endif %}
+              {% endfor %}
+            </td>
+            <td><a class="btn small" href="{{ url_for('admin_order_view', oid=o.id) }}">فتح</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

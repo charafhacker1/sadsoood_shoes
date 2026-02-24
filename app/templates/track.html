@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% set active='track' %}
+{% block content %}
+  <div class="section-title">
+    <h2>تتبع الطلب</h2>
+  </div>
+  <div class="form">
+    <form method="get" action="{{ url_for('track_result') }}">
+      <div class="field">
+        <label>رقم الطلب</label>
+        <input name="order_no" required placeholder="SADSOD-YYMMDD-0001">
+      </div>
+      <div class="field">
+        <label>الهاتف</label>
+        <input name="phone" required placeholder="05xxxxxxxx">
+      </div>
+      <button class="btn" style="width:100%" type="submit">عرض الحالة</button>
+    </form>
+  </div>
+{% endblock %}

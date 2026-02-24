@@ -1,0 +1,32 @@
+{% extends "admin/layout.html" %}
+{% set active='products' %}
+{% block content %}
+  <div class="section-title">
+    <h2>{% if mode=='new' %}إضافة منتج{% else %}تعديل منتج{% endif %}</h2>
+  </div>
+
+  <div class="form">
+    <form method="post" enctype="multipart/form-data">
+      <div class="field"><label>اسم المنتج</label><input name="name" required value="{{ p.name if p else '' }}"></div>
+      <div class="field"><label>Slug (بالإنجليزية/بدون مسافات)</label><input name="slug" required value="{{ p.slug if p else '' }}" placeholder="مثال: sadsod-05"></div>
+      <div class="field"><label>الفئة</label><input name="category" value="{{ p.category if p else '' }}" placeholder="نسائي/رجالي/تقليدي..."></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>السعر (دج)</label><input name="price" value="{{ p.price if p else 0 }}"></div>
+        <div class="field"><label>سعر قبل التخفيض (اختياري)</label><input name="old_price" value="{{ p.old_price if p and p.old_price else '' }}"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>المخزون</label><input name="stock" value="{{ p.stock if p else 0 }}"></div>
+        <div class="field"><label>صورة المنتج (رفع مباشر أو رابط)</label><input type="file" name="image_file" accept="image/*" style="padding:10px"><div class="muted" style="margin-top:6px">اختياري: يمكنك أيضاً وضع رابط/مسار. إذا رفعت ملفاً سيتم اعتماده مباشرة.</div><input name="image" value="{{ p.image if p and p.image else '' }}" placeholder="رابط/مسار (اختياري) مثال: /static/uploads/..." style="margin-top:10px">{% if p and p.image %}<div style="margin-top:10px"><div class="muted">الصورة الحالية:</div><img src="{{ p.image }}" alt="preview" style="max-width:180px;border-radius:12px;border:1px solid rgba(0,0,0,.08)"></div>{% endif %}</div>
+      </div>
+      <div class="field"><label>وصف</label><textarea name="description" rows="4">{{ p.description if p and p.description else '' }}</textarea></div>
+      <label style="display:flex;gap:10px;align-items:center">
+        <input type="checkbox" name="is_featured" {% if p and p.is_featured %}checked{% endif %}>
+        منتج مميز (يظهر في الصفحة الرئيسية)
+      </label>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn accent" type="submit">حفظ</button>
+        <a class="btn outline" href="{{ url_for('admin_products') }}">رجوع</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

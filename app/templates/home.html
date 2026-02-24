@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% set active='home' %}
+{% block content %}
+  <div class="hero">
+    <div class="hero-card">
+      <h1>خطوات تعكس الأناقة<br>والأصالة الجزائرية</h1>
+      <p>منتجات جلدية مختارة بعناية. دفع عند الاستلام، وتوصيل داخل كل الولايات.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn accent" href="{{ url_for('shop') }}">تسوق الآن</a>
+        <a class="btn outline" href="{{ url_for('track') }}">تتبع طلب</a>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <span class="pill">جلد طبيعي</span>
+        <span class="pill">تقليدي</span>
+        <span class="pill">نسائي</span>
+        <span class="pill">رجالي</span>
+      </div>
+    </div>
+    <div class="hero-img">
+      <img src="{{ url_for('static', filename='img/hero_shoes.png') }}" alt="Sadsod Shoes">
+    </div>
+  </div>
+
+  <div class="section-title">
+    <h2>منتجات مميزة</h2>
+    <a class="muted" href="{{ url_for('shop') }}">عرض الكل ←</a>
+  </div>
+
+  <div class="grid">
+    {% for p in featured %}
+      {% include "partials/product_card.html" %}
+    {% else %}
+      <div class="card">لا توجد منتجات مميزة بعد. ادخل للوحة التحكم لإضافة منتجات.</div>
+    {% endfor %}
+  </div>
+
+  <div class="section-title">
+    <h2>الأحدث</h2>
+  </div>
+  <div class="grid">
+    {% for p in latest %}
+      {% include "partials/product_card.html" %}
+    {% else %}
+      <div class="card">لا توجد منتجات.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

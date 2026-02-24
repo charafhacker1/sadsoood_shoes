@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="section-title">
+    <h2>إتمام الطلب</h2>
+    <div class="pill">الدفع عند الاستلام</div>
+  </div>
+
+  <div class="form">
+    <form method="post" action="{{ url_for('checkout_post') }}">
+      <div class="field">
+        <label>الاسم الكامل</label>
+        <input name="name" required placeholder="مثال: محمد بن علي">
+      </div>
+      <div class="field">
+        <label>رقم الهاتف</label>
+        <input name="phone" required placeholder="مثال: 05xxxxxxxx">
+      </div>
+
+      <div class="field">
+        <label>الولاية</label>
+        <select id="wilaya" name="wilaya" required onchange="onWilayaChange()">
+          <option value="">اختر الولاية</option>
+          {% for w in wilayas %}
+            <option value="{{ w }}">{{ w }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>الدائرة (تظهر تلقائياً إذا كانت مُضافة في لوحة التحكم)</label>
+        <select id="daira_select" name="daira_select" style="display:none"></select>
+        <input id="daira_text" name="daira" placeholder="اكتب الدائرة إن لم تظهر في القائمة">
+      </div>
+
+      <div class="field">
+        <label>العنوان بالتفصيل</label>
+        <textarea name="address" required rows="3" placeholder="الحي، الشارع، رقم المنزل..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>ملاحظات (اختياري)</label>
+        <input name="notes" placeholder="لون/مقاس/ملاحظة للمندوب...">
+      </div>
+
+      <button class="btn accent" style="width:100%" type="submit">تأكيد الطلب</button>
+      <div class="muted" style="margin-top:10px;line-height:1.6">
+        سيتم حساب سعر التوصيل تلقائياً حسب الولاية/الدائرة من لوحة التحكم.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Preload dairas for initial empty state
+    onWilayaChange();
+  </script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "admin/layout.html" %}
+{% set active='dairas' %}
+{% block content %}
+  <div class="section-title">
+    <h2>الدوائر</h2>
+  </div>
+
+  <div class="form">
+    <form method="post" action="{{ url_for('admin_dairas_add') }}" style="display:grid;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field">
+          <label>الولاية</label>
+          <select name="wilaya" required>
+            <option value="">اختر الولاية</option>
+            {% for w in wilayas %}<option value="{{ w }}">{{ w }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>اسم الدائرة</label>
+          <input name="name" required placeholder="مثال: دائرة ...">
+        </div>
+      </div>
+      <button class="btn accent" type="submit">إضافة دائرة</button>
+      <div class="muted">بعد إضافة الدوائر هنا، ستظهر تلقائياً للزبون في صفحة الدفع (Checkout).</div>
+    </form>
+  </div>
+
+  <div class="section-title"><h2>القائمة</h2></div>
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>الولاية</th><th>الدائرة</th><th></th></tr></thead>
+      <tbody>
+        {% for d in dairas %}
+          <tr>
+            <td>{{ d.wilaya }}</td>
+            <td>{{ d.name }}</td>
+            <td>
+              <form method="post" action="{{ url_for('admin_dairas_delete', did=d.id) }}" onsubmit="return confirm('حذف؟')">
+                <button class="btn small outline" type="submit">حذف</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

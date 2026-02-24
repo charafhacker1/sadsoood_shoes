@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="card" style="padding:16px">
+    <h2 style="margin:0 0 8px">حالة الطلب</h2>
+    <div class="muted">رقم الطلب: <b>{{ order.order_no }}</b></div>
+    <div class="muted">الحالة: <b>{{ status_label }}</b></div>
+    <div class="muted">المجموع: <b>{{ order.total }} دج</b></div>
+    <div class="muted">الوجهة: {{ order.wilaya }}{% if order.daira %} - {{ order.daira }}{% endif %}</div>
+  </div>
+
+  <div class="section-title"><h2>المنتجات</h2></div>
+  <div class="form">
+    <table class="table">
+      <thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th></tr></thead>
+      <tbody>
+        {% for it in items %}
+          <tr><td>{{ it.product_name }}</td><td>{{ it.qty }}</td><td>{{ it.price }} دج</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
