@@ -27,14 +27,14 @@
         {% endif %}
       {% endwith %}
 
-      <form method="post" action="{{ url_for('admin_login_post') }}" style="margin-top:14px">
+      <form method="post" action="{{ url_for('admin_login_post', token=admin_token) }}" style="margin-top:14px">
         <div class="field">
           <label>المستخدم</label>
-          <input name="username" required value="admin">
+          <input name="username" required placeholder="اسم المستخدم">
         </div>
         <div class="field">
           <label>كلمة السر</label>
-          <input name="password" type="password" required value="admin123">
+          <input name="password" type="password" required placeholder="كلمة المرور">
         </div>
         <button class="btn accent" style="width:100%" type="submit">دخول</button>
         <div class="muted" style="margin-top:10px">بعد الدخول غيّر كلمة السر من الكود أو بالبيئة.</div>

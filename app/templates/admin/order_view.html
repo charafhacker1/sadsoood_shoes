@@ -3,7 +3,7 @@
 {% block content %}
   <div class="section-title">
     <h2>طلب: {{ order.order_no }}</h2>
-    <a class="btn outline small" href="{{ url_for('admin_orders') }}">رجوع</a>
+    <a class="btn outline small" href="{{ url_for('admin_orders', token=admin_token) }}">رجوع</a>
   </div>
 
   <div class="card" style="padding:14px">

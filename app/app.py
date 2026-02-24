@@ -15,6 +15,10 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SADSOD_SECRET", "change-me-please")
+
+# لوحة التحكم السرّية: لازم تعيّن ADMIN_TOKEN في Render Environment.
+# أي توكن غلط => 404 (باش ما يبانش مسار لوحة التحكم).
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN") or os.environ.get("SADSOD_ADMIN_TOKEN") or "CHANGE_ME"
 # Use DATABASE_URL if provided (Render/Postgres), otherwise local SQLite
 db_url = os.environ.get("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
@@ -138,11 +142,15 @@ def cart_subtotal():
     return sum(i["line_total"] for i in cart_items())
 
 def admin_required(fn):
-    from functools import wraps
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        token = kwargs.get("token")
+        # توكن غلط = 404
+        if not token or token != ADMIN_TOKEN:
+            abort(404)
+        # غير مسجل دخول => روح لصفحة الدخول السرّية
         if not session.get("admin"):
-            return redirect(url_for("admin_login", next=request.path))
+            return redirect(url_for("admin_login", token=token))
         return fn(*args, **kwargs)
     return wrapper
 
@@ -155,7 +163,13 @@ def gen_order_no():
 
 @app.context_processor
 def inject_globals():
-    return dict(cart_count=cart_count(), year=datetime.utcnow().year)
+    return dict(
+        cart_count=cart_count(),
+        year=datetime.utcnow().year,
+        admin_token=ADMIN_TOKEN,
+        whatsapp_number=os.environ.get("WHATSAPP_NUMBER", "0658968795"),
+        instagram_url=os.environ.get("INSTAGRAM_URL", "https://instagram.com/sadsod.shoes_31"),
+    )
 
 @app.get("/")
 def home():
@@ -318,30 +332,47 @@ def api_dairas():
     rows = Daira.query.filter_by(wilaya=wilaya).order_by(Daira.name.asc()).all()
     return jsonify([r.name for r in rows])
 
-# Admin
-@app.get("/admin/login")
-def admin_login():
+# Admin (Secret Panel)
+# ملاحظة: /admin و /admin/* مخفية بالكامل (404). الدخول يكون فقط عبر /panel/<token>/...
+
+@app.get("/admin")
+@app.get("/admin/<path:any_path>")
+def admin_hidden(any_path=None):
+    abort(404)
+
+
+@app.get("/panel/<token>/login")
+def admin_login(token):
+    if token != ADMIN_TOKEN:
+        abort(404)
     return render_template("admin/login.html")
 
-@app.post("/admin/login")
-def admin_login_post():
+
+@app.post("/panel/<token>/login")
+def admin_login_post(token):
+    if token != ADMIN_TOKEN:
+        abort(404)
     username = request.form.get("username","").strip()
     password = request.form.get("password","").strip()
     u = AdminUser.query.filter_by(username=username).first()
     if not u or u.password_hash != hash_password(password):
         flash("بيانات الدخول غير صحيحة.", "warn")
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("admin_login", token=token))
     session["admin"] = True
-    return redirect(url_for("admin_dashboard"))
+    return redirect(url_for("admin_dashboard", token=token))
 
-@app.get("/admin/logout")
-def admin_logout():
+
+@app.get("/panel/<token>/logout")
+def admin_logout(token):
+    if token != ADMIN_TOKEN:
+        abort(404)
     session.pop("admin", None)
     return redirect(url_for("home"))
 
-@app.get("/admin")
+
+@app.get("/panel/<token>")
 @admin_required
-def admin_dashboard():
+def admin_dashboard(token):
     today = datetime.utcnow().date()
     orders_today = Order.query.filter(func.date(Order.created_at)==today).count()
     revenue_today = db.session.query(func.sum(Order.total)).filter(func.date(Order.created_at)==today).scalar() or 0
@@ -353,15 +384,16 @@ def admin_dashboard():
         total_orders=total_orders, total_products=total_products,
         recent=recent, statuses=ORDER_STATUSES)
 
-@app.get("/admin/products")
+@app.get("/panel/<token>/products")
 @admin_required
-def admin_products():
+def admin_products(token):
     products = Product.query.order_by(Product.created_at.desc()).all()
     return render_template("admin/products.html", products=products)
 
-@app.route("/admin/products/new", methods=["GET","POST"])
+
+@app.route("/panel/<token>/products/new", methods=["GET","POST"])
 @admin_required
-def admin_products_new():
+def admin_products_new(token):
     if request.method == "POST":
         name = request.form.get("name","").strip()
         slug = request.form.get("slug","").strip()
@@ -377,25 +409,26 @@ def admin_products_new():
             uploaded_url = save_image_upload(file_obj)
             if not uploaded_url:
                 flash("صيغة الصورة غير مدعومة. استعمل PNG/JPG/JPEG/WEBP/GIF.", "warn")
-                return redirect(url_for("admin_products_new"))
+                return redirect(url_for("admin_products_new", token=token))
             image = uploaded_url
         desc = request.form.get("description","").strip() or None
         is_featured = True if request.form.get("is_featured") else False
         if not (name and slug):
             flash("الاسم والـ slug ضروريان.", "warn")
-            return redirect(url_for("admin_products_new"))
+            return redirect(url_for("admin_products_new", token=token))
         if Product.query.filter_by(slug=slug).first():
             flash("Slug موجود مسبقاً.", "warn")
-            return redirect(url_for("admin_products_new"))
+            return redirect(url_for("admin_products_new", token=token))
         p = Product(name=name, slug=slug, category=category, price=price, old_price=old_price, stock=stock, image=image, description=desc, is_featured=is_featured)
         db.session.add(p); db.session.commit()
         flash("تم إضافة المنتج ✅", "ok")
-        return redirect(url_for("admin_products"))
+        return redirect(url_for("admin_products", token=token))
     return render_template("admin/product_form.html", mode="new", p=None)
 
-@app.route("/admin/products/<int:pid>/edit", methods=["GET","POST"])
+
+@app.route("/panel/<token>/products/<int:pid>/edit", methods=["GET","POST"])
 @admin_required
-def admin_products_edit(pid):
+def admin_products_edit(token, pid):
     p = Product.query.get_or_404(pid)
     if request.method == "POST":
         p.name = request.form.get("name","").strip()
@@ -412,26 +445,28 @@ def admin_products_edit(pid):
             uploaded_url = save_image_upload(file_obj)
             if not uploaded_url:
                 flash("صيغة الصورة غير مدعومة. استعمل PNG/JPG/JPEG/WEBP/GIF.", "warn")
-                return redirect(url_for("admin_products_edit", pid=pid))
+                return redirect(url_for("admin_products_edit", token=token, pid=pid))
             p.image = uploaded_url
         p.description = request.form.get("description","").strip() or None
         p.is_featured = True if request.form.get("is_featured") else False
         db.session.commit()
         flash("تم حفظ التغييرات ✅", "ok")
-        return redirect(url_for("admin_products"))
+        return redirect(url_for("admin_products", token=token))
     return render_template("admin/product_form.html", mode="edit", p=p)
 
-@app.post("/admin/products/<int:pid>/delete")
+
+@app.post("/panel/<token>/products/<int:pid>/delete")
 @admin_required
-def admin_products_delete(pid):
+def admin_products_delete(token, pid):
     p = Product.query.get_or_404(pid)
     db.session.delete(p); db.session.commit()
     flash("تم حذف المنتج.", "ok")
-    return redirect(url_for("admin_products"))
+    return redirect(url_for("admin_products", token=token))
 
-@app.get("/admin/orders")
+
+@app.get("/panel/<token>/orders")
 @admin_required
-def admin_orders():
+def admin_orders(token):
     status = request.args.get("status","").strip()
     wilaya = request.args.get("wilaya","").strip()
     q = Order.query
@@ -444,9 +479,10 @@ def admin_orders():
         wilayas = json.load(f)
     return render_template("admin/orders.html", orders=orders, statuses=ORDER_STATUSES, wilayas=wilayas, status=status, wilaya=wilaya)
 
-@app.route("/admin/orders/<int:oid>", methods=["GET","POST"])
+
+@app.route("/panel/<token>/orders/<int:oid>", methods=["GET","POST"])
 @admin_required
-def admin_order_view(oid):
+def admin_order_view(token, oid):
     order = Order.query.get_or_404(oid)
     items = OrderItem.query.filter_by(order_id=order.id).all()
     if request.method == "POST":
@@ -455,67 +491,73 @@ def admin_order_view(oid):
             order.status = st
             db.session.commit()
             flash("تم تحديث الحالة ✅", "ok")
-        return redirect(url_for("admin_order_view", oid=oid))
+        return redirect(url_for("admin_order_view", token=token, oid=oid))
     return render_template("admin/order_view.html", order=order, items=items, statuses=ORDER_STATUSES)
 
-@app.get("/admin/shipping")
+
+@app.get("/panel/<token>/shipping")
 @admin_required
-def admin_shipping():
+def admin_shipping(token):
     rates = ShippingRate.query.order_by(ShippingRate.wilaya.asc(), ShippingRate.daira.asc()).all()
     with open(os.path.join(DATA_DIR, "wilayas.json"), "r", encoding="utf-8") as f:
         wilayas = json.load(f)
     return render_template("admin/shipping.html", rates=rates, wilayas=wilayas)
 
-@app.post("/admin/shipping/add")
+
+@app.post("/panel/<token>/shipping/add")
 @admin_required
-def admin_shipping_add():
+def admin_shipping_add(token):
     wilaya = request.form.get("wilaya","").strip()
     daira = request.form.get("daira","").strip() or None
     price = int(request.form.get("price","0") or 0)
     eta = request.form.get("eta","").strip() or None
     if not wilaya:
-        flash("اختر الولاية.", "warn"); return redirect(url_for("admin_shipping"))
+        flash("اختر الولاية.", "warn"); return redirect(url_for("admin_shipping", token=token))
     r = ShippingRate(wilaya=wilaya, daira=daira, price=price, eta=eta)
     db.session.add(r); db.session.commit()
     flash("تمت إضافة سعر توصيل ✅", "ok")
-    return redirect(url_for("admin_shipping"))
+    return redirect(url_for("admin_shipping", token=token))
 
-@app.post("/admin/shipping/<int:rid>/delete")
+
+@app.post("/panel/<token>/shipping/<int:rid>/delete")
 @admin_required
-def admin_shipping_delete(rid):
+def admin_shipping_delete(token, rid):
     r = ShippingRate.query.get_or_404(rid)
     db.session.delete(r); db.session.commit()
     flash("تم الحذف.", "ok")
-    return redirect(url_for("admin_shipping"))
+    return redirect(url_for("admin_shipping", token=token))
 
-@app.get("/admin/dairas")
+
+@app.get("/panel/<token>/dairas")
 @admin_required
-def admin_dairas():
+def admin_dairas(token):
     with open(os.path.join(DATA_DIR, "wilayas.json"), "r", encoding="utf-8") as f:
         wilayas = json.load(f)
     dairas = Daira.query.order_by(Daira.wilaya.asc(), Daira.name.asc()).all()
     return render_template("admin/dairas.html", wilayas=wilayas, dairas=dairas)
 
-@app.post("/admin/dairas/add")
+
+@app.post("/panel/<token>/dairas/add")
 @admin_required
-def admin_dairas_add():
+def admin_dairas_add(token):
     wilaya = request.form.get("wilaya","").strip()
     name = request.form.get("name","").strip()
     if not (wilaya and name):
         flash("اختر الولاية واسم الدائرة.", "warn")
-        return redirect(url_for("admin_dairas"))
+        return redirect(url_for("admin_dairas", token=token))
     db.session.add(Daira(wilaya=wilaya, name=name))
     db.session.commit()
     flash("تمت إضافة الدائرة ✅", "ok")
-    return redirect(url_for("admin_dairas"))
+    return redirect(url_for("admin_dairas", token=token))
 
-@app.post("/admin/dairas/<int:did>/delete")
+
+@app.post("/panel/<token>/dairas/<int:did>/delete")
 @admin_required
-def admin_dairas_delete(did):
+def admin_dairas_delete(token, did):
     d = Daira.query.get_or_404(did)
     db.session.delete(d); db.session.commit()
     flash("تم الحذف.", "ok")
-    return redirect(url_for("admin_dairas"))
+    return redirect(url_for("admin_dairas", token=token))
 
 def seed():
     # Create default admin and demo products if empty

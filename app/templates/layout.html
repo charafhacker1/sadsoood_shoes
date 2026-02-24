@@ -26,7 +26,7 @@
       <div class="nav-actions">
         <a class="icon-btn" href="{{ url_for('cart') }}" title="السلة">🛒{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
         <a class="icon-btn" href="{{ url_for('track') }}" title="تتبع">📦</a>
-        <a class="icon-btn" href="{{ url_for('admin_dashboard') }}" title="لوحة التحكم">⚙️</a>
+        {# تم إخفاء رابط/أيقونة لوحة التحكم عن الزبائن بالكامل #}
       </div>
     </div>
   </div>

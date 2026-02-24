@@ -18,12 +18,12 @@
         </div>
       </div>
       <nav class="admin-menu">
-        <a class="{{ 'active' if active=='dash' else '' }}" href="{{ url_for('admin_dashboard') }}">📊 الإحصائيات</a>
-        <a class="{{ 'active' if active=='products' else '' }}" href="{{ url_for('admin_products') }}">👟 المنتجات</a>
-        <a class="{{ 'active' if active=='orders' else '' }}" href="{{ url_for('admin_orders') }}">📦 الطلبات</a>
-        <a class="{{ 'active' if active=='shipping' else '' }}" href="{{ url_for('admin_shipping') }}">🚚 الشحن</a>
-        <a class="{{ 'active' if active=='dairas' else '' }}" href="{{ url_for('admin_dairas') }}">🗺️ الدوائر</a>
-        <a href="{{ url_for('admin_logout') }}">🚪 خروج</a>
+        <a class="{{ 'active' if active=='dash' else '' }}" href="{{ url_for('admin_dashboard', token=admin_token) }}">📊 الإحصائيات</a>
+        <a class="{{ 'active' if active=='products' else '' }}" href="{{ url_for('admin_products', token=admin_token) }}">👟 المنتجات</a>
+        <a class="{{ 'active' if active=='orders' else '' }}" href="{{ url_for('admin_orders', token=admin_token) }}">📦 الطلبات</a>
+        <a class="{{ 'active' if active=='shipping' else '' }}" href="{{ url_for('admin_shipping', token=admin_token) }}">🚚 الشحن</a>
+        <a class="{{ 'active' if active=='dairas' else '' }}" href="{{ url_for('admin_dairas', token=admin_token) }}">🗺️ الدوائر</a>
+        <a href="{{ url_for('admin_logout', token=admin_token) }}">🚪 خروج</a>
       </nav>
       <div style="margin-top:16px;font-size:12px;opacity:.7;line-height:1.6">
         ✅ الدفع عند الاستلام<br>

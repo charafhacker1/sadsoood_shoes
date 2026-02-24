@@ -20,7 +20,7 @@
         {% endfor %}
       </select>
       <button class="btn small" type="submit">تصفية</button>
-      <a class="btn small outline" href="{{ url_for('admin_orders') }}">مسح</a>
+      <a class="btn small outline" href="{{ url_for('admin_orders', token=admin_token) }}">مسح</a>
     </form>
   </div>
 
@@ -41,7 +41,7 @@
               {% endfor %}
             </td>
             <td class="muted">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td><a class="btn small" href="{{ url_for('admin_order_view', oid=o.id) }}">فتح</a></td>
+            <td><a class="btn small" href="{{ url_for('admin_order_view', token=admin_token, oid=o.id) }}">فتح</a></td>
           </tr>
         {% endfor %}
       </tbody>

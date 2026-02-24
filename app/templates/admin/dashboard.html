@@ -30,7 +30,7 @@
                 {% if s==o.status %}{{ label }}{% endif %}
               {% endfor %}
             </td>
-            <td><a class="btn small" href="{{ url_for('admin_order_view', oid=o.id) }}">فتح</a></td>
+            <td><a class="btn small" href="{{ url_for('admin_order_view', token=admin_token, oid=o.id) }}">فتح</a></td>
           </tr>
         {% endfor %}
       </tbody>
